@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="jp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>平塚メシ</title>
+    
+    <link rel="stylesheet" href="main.css">
+</head>
+
+
+<body>
+    <!--ホームに帰るためのボタン-->
+    <logotohome>
+    <a href="index.html"><img src="images/logo.png" alt=""></a>
+    </logotohome>
+
+    <!--h1は見出し１（大見出し）-->
+    <h1>平塚メシ</h1>
+        <!--h2は見出し2（中見出し）-->
+        <h2>■目的</h2>
+           <p>
+               平塚駅周辺の飲食店をまとめて既存の地図アプリよりも詳細な地図を作成する。
+        <h2>■作成手順</h2>
+            <h3>下書き</h3>
+            <p>
+                とりあえず最終目標となるアプリの完成予想図を下書きしてみた（絵は下手）。<br>
+                <img src="images/平塚メシ/IMG_4267.jpg" width="30%">
+            </p>
+            <p>
+                この"ガスト"と"洋食"の隣にあるボタン（絵が下手）を押すと、<br>
+                <img src="images/平塚メシ/IMG_4268.jpg" width="30%">
+            </p>
+            <p>
+                このように店の詳細の画面に移る（絵が下手）。<br>
+                
+            </p>
+    
+            <h3>地図を表示する</h3>
+            <p>
+                まずはアプリを立ち上げたときに地図を表示することから始める。<br>
+            </p>
+            <p>
+                地図を表示するのはとても簡単で、Xcodeから新規プロジェクトを立ち上げたら、storybordの右上のobject検索から、<br>
+                <img src="images/平塚メシ/スクショ１.png" width="70%">
+            </p>
+            <p>
+                MapkitViewをstorybord上にドラッグ＆ドロップ<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-01 7.09.49.png" width="70%">
+            </p>
+            <p>
+                autoconstraintsをして完了<br>
+                simulatorを起動するとこうなる。<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-01 7.22.49.png" width="30%">
+            </p>
+            <h3>平塚を中心にする</h3>
+            <p>
+                このままだと範囲が広すぎていちいち平塚までズームしていくのが面倒。<br>
+                今回は平塚駅周辺の飲食店を表示するので、アプリを起動した時に平塚駅スタートになるように設定する。<br>
+                <br>
+                最初にstorybord上のmapとviewcontrollerを紐付ける<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-01 8.29.21.png" width="70%"><br>
+                この時に使用するのは以下のコードで、<br>
+                <br>
+                let coordinate = CLLocationCoordinate2DMake(35.327616, 139.350467)<br>
+                <br>
+                これはアプリ起動時に中心となる座標を指定する。ちなみに座標はgoogleマップで検索し取得したものを使用した。<br>
+                <br>
+                let span = MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)<br>
+                <br>
+                このコードで起動時の範囲の広さを指定する。数値が小さければ小さいほど範囲が狭くなり、ズームした状態で始まる。<br>
+                <br>
+                let region = MKCoordinateRegion(center: coordinate, span: span)<br>
+                mapView.setRegion(region, animated:true)<br>
+                <br>
+                最後に上二つの座標と表示範囲からMapViewにセットして完了。<br>
+                このコードを追加してsimulatorを実行した結果がこちら<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-01 8.31.40.png" width="30%">
+            </p>
+            <h3>飲食店にピンを立てる</h3>
+            <p>
+                ここまではとても順調だったが、ここからなかなか上手くいかず、時間がかかってしまった。まずピンを一本立てることにして、これは難なくこなせた。<br>
+                ピンを立てるにはある店舗（よく行く油そばの店）の緯度経度を指定し、<br>
+                <br>
+                let annotation = MKPointAnnotation()<br>
+                annotation.coordinate = CLLocationCoordinate2DMake(35.329480,139.351771)<br>
+                annotation.title = "油そば専門店ぶらぶら　平塚店"<br>
+                annotation.subtitle = "ラーメン"<br>
+                self.mapView.addAnnotation(annotation)<br>
+                <br>
+                こうすることで、ピンを建てることができる。<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-01 14.17.16.png" width="30%"><br>
+            </p>
+            <h3>複数ピンを立てる</h3>
+            <p>
+                前項で飲食店を緯度経度を指定しピンを立てることができたが、複数立てる時には少し面倒。<br>
+                そこで、<br>
+                <br>
+                let annotation = MKPointAnnotation()<br>
+                annotation.coordinate = CLLocationCoordinate2DMake(35.329480,139.351771)<br>
+                annotation.title = "油そば専門店ぶらぶら　平塚店"<br>
+                annotation.subtitle = "ラーメン"<br>
+                self.mapView.addAnnotation(annotation)<br>
+                <br>
+                このコードを、<br>
+                <br>
+                func addAnotation( _ latitude: CLLocationDegrees,_ longitude: CLLocationDegrees, _ title:String,_ subtitle:String) {<br>
+                    let annotation = MKPointAnnotation()<br>
+                    annotation.coordinate = CLLocationCoordinate2DMake(latitude, longitude)<br>
+                    annotation.title = title<br>
+                    annotation.subtitle = subtitle<br>
+                    mapView.addAnnotation(annotation)<br>
+                }<br>
+                <br>
+                このような関数を宣言することで、<br>
+                <br>
+                addAnotation(35.329480,139.351771, "油そば専門店ぶらぶら平塚店","ラーメン")<br>
+                <br>
+                この一文だけで先ほどのコードと同じような動きができる。<br>
+                さらに、<br>
+                <br>
+                addAnotation(35.327152,139.353333, "中国料理　大陸","中華")<br>
+                addAnotation(35.329104, 139.345826, "大好きや　西口店","居酒屋")<br>
+                <br>
+                という２店舗（これもよく行く店）を追加してみて実行すると、次のような状態になる。<br>
+                <br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-22 1.46.41.png" width="30%"><br>
+            </p>
+            <h3>ピンにcallout（吹き出し）をつける</h3>
+            <p>
+                ピンを複数立てやすくなったので、今度はピンに吹き出しをつけて、そこにボタンを取り付け、店舗の詳細画面に遷移させたい。<br>
+                具体的には次のようなイメージ。<br>
+                <img src="images/平塚メシ/calloutイメージ.jpg" width="70%"><br>
+                そのためには次のようなコードが必要<br>
+                <br>
+                let button = MKMarkerAnnotationView()<br>
+                //定数"button"の宣言<br>
+                button.canShowCallout = true<br>
+                //calloutの表示をオンにする<br>
+                button.rightCalloutAccessoryView = UIButton(type: UIButton.ButtonType.detailDisclosure)<br>
+                //calloutの右部分にボタンを追加する<br>
+                <br>
+                ・・・できない。コードはあってるはず。<br>
+                １０日間ほど費やしたけど全然原因がわからないので、とりあえず置いておくことにした。<br>
+                未解決。<br>
+            </p>
+            <h3>画面の遷移</h3>
+            <p>
+                ボタンがどうしてもつけられないのでとりあえずボタンを追加できたと思い込んで次のステップへ。<br>
+                次はボタンを押して店舗の詳細画面に遷移させる。<br>
+                遷移させるためにはまずナビゲーションコントローラーという画面遷移をナビゲーションするクラスを追加する。<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-22 6.31.53.png" width="70%"><br>
+                <br>
+                次に遷移先の画面を用意する。<br>
+                今回は遷移先でタブをつけてさらに画面を変化させたいので、通常viewcontrollerを置くところをtabbarcontrollerというものを置く。<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-22 12.46.04.png" width="70%"><br>
+                これを置くことで、画面下部にタブが付いた状態の画面が自動で作成される。<br>
+                これらの画面でそれぞれ、「メニュー」「住所」「アクセス」「連絡先」というタブを作成<br>
+                作り方はviewcontrollerをタブの数だけ用意し、あとはtabbarcontrollerとそれらをつなげていく。<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-22 13.09.00.png" width="70%"><br>
+                あとは地図の画面に本来ピンの横につくであろうボタンを設置（ここではnext）してそれとtabbarcontrollerをつなげれば、枠組みは完成。<br>
+                ここからは画面内の画面を作っていく。<br>
+                まずはメニュー画面から。<br>
+                メニュー画面は店の種類と店名を上に表示し、その下にメニューを載せていく。<br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-22 13.55.45.png" width="70%"><br>
+                <br>
+                <img src="images/平塚メシ/スクリーンショット 2019-07-22 2.02.33.png" width="70%"><br>
+                
+                
+                
+                
+            </p>
+                
+    
+</body>
+
